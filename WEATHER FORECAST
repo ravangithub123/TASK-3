@@ -1,0 +1,46 @@
+import sys
+import requests
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
+class WeatherApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle('Weather Forecast')
+        self.setGeometry(200, 200, 800, 400)
+
+        self.city_label = QLabel('Enter a city:')
+        self.city_entry = QLineEdit()
+        self.get_weather_button = QPushButton('Get Weather')
+        self.weather_label = QLabel()
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.city_label)
+        layout.addWidget(self.city_entry)
+        layout.addWidget(self.get_weather_button)
+        layout.addWidget(self.weather_label)
+        self.setLayout(layout)
+
+        self.get_weather_button.clicked.connect(self.get_weather)
+
+    def get_weather(self):
+        city = self.city_entry.text()
+        api_key = "c951b2ebf0488479bd45a044cbeb4c0a"
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&units=metric&appid={api_key}"
+        response = requests.get(url)
+        data = response.json()
+
+        if response.status_code == 200:
+            temperature = data["main"]["temp"]
+            description = data["weather"][0]["description"]
+            self.weather_label.setText(f"Temperature: {temperature}°C\nDescription: {description}")
+        else:
+            self.weather_label.setText("Error fetching weather data")
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    weather_app = WeatherApp()
+    weather_app.show()
+    sys.exit(app.exec_())
+
